@@ -7,3 +7,13 @@ It's forked from [@luksan](https://github.com/luksan) [original work](https://gi
 which was then improved by [@xantares](https://github.com/xantares) [here](https://github.com/xantares/pyfprint) with Python 3 support.
 
 I've cut off some things, but my use case works and I hope it's useful for somebody :D
+
+usage
+-----
+
+```
+mkdir venv
+. venv/bin/activate
+pip install .
+# hack hack hack
+```
