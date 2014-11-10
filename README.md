@@ -3,9 +3,9 @@ pyfprint-cffi
 
 tl;dr
 -----
-This is a python module with CFFI bindings for [libfprint](http://www.freedesktop.org/wiki/Software/fprint/libfprint/)
+This is a python module with [CFFI](https://cffi.readthedocs.org/en/latest/) bindings for [libfprint](http://www.freedesktop.org/wiki/Software/fprint/libfprint/)
 
-**warning:** i've cut off some things from the original swig bindings
+**warning:** i've cut off some things from the original [swig](https://github.com/swig/swig) bindings
 
 usage
 -----
