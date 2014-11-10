@@ -185,12 +185,12 @@ class Device:
 
     def enroll_finger(self):
         """Enroll a finger
-        
+
         Returns
         -------
         fprint : Fprint
             the enrolled fingerprint
-        img : Image    
+        img : Image
             the enrolled image
         """
         if not self.dev:
@@ -226,12 +226,12 @@ class Device:
     def verify_finger(self, fprint):
         """
         Compare the finger on the device with the supplied Fprint.
-        
+
         Parameters
         ----------
         fprint : Fprint
             The fingerprint to match
-        
+
         Returns
         -------
         verified : bool
@@ -466,7 +466,7 @@ class Fprint:
         # dscv_ptr is a SWIG pointer to a struct pf_dscv_print
         # DscvList is a class instance used to free the allocated pf_dscv_print's
         #          with pf_dscv_prints_free when they're all unused.
-        # serial_data is a string as returned by data()
+        # serial_data is a 'bytes' as returned by data()
 
         self.data_ptr = data_ptr
         self.dscv_ptr = dscv_ptr

@@ -59,7 +59,7 @@
 %apply unsigned long *OUTPUT { size_t *match_offset };
 
 /* fp_print_data_from_data */
-%apply (char *STRING, int LENGTH) { (unsigned char *buf, size_t buflen) };
+%apply (char *STRING, int LENGTH) { (void *buf, int buflen) };
 
 /* fp_img_get_minutiae */
 %apply int *OUTPUT { int *nr_minutiae };
@@ -119,9 +119,9 @@ typedef unsigned int uint32_t;
 typedef unsigned short int uint16_t;
 
 /* Fprint.get_data() */
-%cstring_output_allocate_size(char **print_data, int *len, free(*($1)));
+%cstring_output_allocate_size(void **print_data, int *len, free(*($1)));
 %inline %{
-void pyfp_print_get_data(char **print_data, int *len, struct fp_print_data *print)
+void pyfp_print_get_data(void **print_data, int *len, struct fp_print_data *print)
 {
 	*len = fp_print_data_get_data(print, (unsigned char**)print_data);
 }
@@ -408,8 +408,7 @@ int fp_print_data_from_dscv_print(struct fp_dscv_print *print,
 int fp_print_data_save(struct fp_print_data *data, enum fp_finger finger);
 int fp_print_data_delete(struct fp_dev *dev, enum fp_finger finger);
 void fp_print_data_free(struct fp_print_data *data);
-struct fp_print_data *fp_print_data_from_data(unsigned char *buf,
-	size_t buflen);
+struct fp_print_data *fp_print_data_from_data(void *buf, size_t buflen);
 uint16_t fp_print_data_get_driver_id(struct fp_print_data *data);
 uint32_t fp_print_data_get_devtype(struct fp_print_data *data);
 
