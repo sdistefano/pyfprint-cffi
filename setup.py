@@ -6,12 +6,12 @@ import os
 from distutils.core import setup, Extension
 
 setup(
-    name="pyfprint",
+    name="pyfprint-cffi",
     version="0.1",
     description="CFFI bindings for libfprint",
     author="Francisco Demartino",
     author_email="demartino.francisco@gmail.com",
-    url="https://github.com/franciscod/pyfprint",
+    url="https://github.com/franciscod/pyfprint-cffi",
     license="GPL-2",
     packages=["pyfprint"],
     install_requires=["cffi==0.8.6"],
