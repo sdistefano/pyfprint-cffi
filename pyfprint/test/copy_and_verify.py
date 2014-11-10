@@ -8,26 +8,23 @@ pyfprint.fp_init()
 devs = pyfprint.discover_devices()
 dev = devs[0]
 dev.open()
-print("enroll")
-fprint, img = dev.enroll_finger()
+print("enroll, finger please")
+fp, _ = dev.enroll_finger()
 
 print("getting data")
-d = fprint.data()
+b = fp.data()
 
-print("got:")
-print(d)
+print("got data buffer:")
+print(b)
 
-print("copying")
-fp2 = pyfprint.Fprint(d)
-print("copied")
+print("fp copied")
+fp2 = pyfprint.Fprint(b)
 
-print("verifying original...")
-fprint.verify_finger()
-print("ok")
+print("verify original, finger please")
+print(dev.verify_finger(fp))
 
-print("verifying copy...")
-fp2.verify_finger()
-print("ok")
+print("verifying copy, finger please")
+print(dev.verify_finger(fp2))
 
 dev.close()
 pyfprint.fp_exit()
