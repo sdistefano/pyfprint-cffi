@@ -35,7 +35,7 @@ _init_ok = False
 
 
 def _dbg(*arg):
-    # print (arg)
+    # print ("pyfprint-cffi: " + str(arg))
     pass
 
 
@@ -182,36 +182,38 @@ class Device:
         """
         if not self.dev:
             raise "Device not open"
-        r = C.FP_ENROLL_RETRY
-        while r != C.FP_ENROLL_COMPLETE:
+
+        while True:
+            _dbg("enrolling finger...")
             fprint = ffi.new("struct fp_print_data **")
             img = ffi.new("struct fp_img **")
 
             r = C.fp_enroll_finger_img(self.dev, fprint, img)
+
             if r < 0:
                 raise "Internal I/O error while enrolling: %i" % i
+
             img = Image(img)
+
             if r == C.FP_ENROLL_COMPLETE:
                 _dbg("enroll complete")
-            if r == C.FP_ENROLL_FAIL:
-                print("Failed. Enrollment process reset.")
-                return None, img
-            if r == C.FP_ENROLL_PASS:
-                _dbg("enroll PASS")
-                pass
-            if r == C.FP_ENROLL_RETRY:
-                _dbg("enroll RETRY")
-                pass
-            if r == C.FP_ENROLL_RETRY_TOO_SHORT:
-                _dbg("enroll RETRY_SHORT")
-                pass
-            if r == C.FP_ENROLL_RETRY_CENTER_FINGER:
-                _dbg("enroll RETRY_CENTER")
-                pass
-            if r == C.FP_ENROLL_RETRY_REMOVE_FINGER:
-                _dbg("enroll RETRY_REMOVE")
-                pass
-        return Fprint(data_ptr=fprint[0]), img
+                return Fprint(data_ptr=fprint[0]), img
+
+            messages = {
+                C.FP_ENROLL_FAIL: "FAIL",
+                C.FP_ENROLL_PASS: "PASS",
+                C.FP_ENROLL_RETRY: "RETRY",
+                C.FP_ENROLL_RETRY_TOO_SHORT: "RETRY_SHORT",
+                C.FP_ENROLL_RETRY_CENTER_FINGER: "RETRY_CENTER",
+                C.FP_ENROLL_RETRY_REMOVE_FINGER: "RETRY_REMOVE",
+            }
+            _dbg("enroll " + messages[r])
+
+            # Workaround my uru4000 hangs after fp_eenroll_finger_img returns RETRY
+            self.close()
+            self.open()
+
+        return None, img
 
     def verify_finger(self, fprint):
         """
