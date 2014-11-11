@@ -22,7 +22,6 @@ os.makedirs(DIR, exist_ok=True)
 
 with open(DIR + "/" + name, "wb") as file:
 	file.write(bytes(b))
-	print("data saved")
 
 dev.close()
 pyfprint.fp_exit()

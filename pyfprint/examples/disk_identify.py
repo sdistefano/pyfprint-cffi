@@ -17,15 +17,20 @@ for name in os.listdir(DIR):
 	fps.append(pyfprint.Fprint(open(DIR + "/" + name, 'br').read()))
 	names.append(name)
 
+print ("ready to match fingers!")
+
 while True:
-	print("finger to identify, please")
+	i, fp, img, r = dev.identify_finger(fps)
 
-	i = None
+	if r == pyfprint.C.FP_VERIFY_MATCH:
+		print ("identified " + names[i] + "!")
 
-	while i is None:
-		i, *rest = dev.identify_finger(fps)
+	elif r == pyfprint.C.FP_VERIFY_NO_MATCH:
+		print ("no match found")
 
-	print ("identified " + names[i] + "!")
+	else:
+		print ("hmm, didn't got that, retry?")
+
 
 dev.close()
 pyfprint.fp_exit()
