@@ -269,13 +269,22 @@ class Device:
 
         if not self.dev:
             raise "Device not open"
-        gallery = C.pyfp_print_data_array(len(fprints))
+
         for x in fprints:
             if not self.is_compatible(x):
                 raise "can't verify uncompatible print"
-            gallery.append(x._get_print_data_ptr())
-        (r, offset, img) = C.pyfp_identify_finger_img(self.dev, gallery.list)
+
+        print_gallery = ffi.new("struct fp_print_data * [%d]" % (len(fprints)+1))
+
+        for i, x in enumerate(fprints):
+            print_gallery[i] = x._get_print_data_ptr()
+
+        offset = ffi.new("size_t *")
+        img = ffi.new("struct fp_img **")
+        r = C.fp_identify_finger_img(self.dev, print_gallery, offset, img)
         img = Image(img)
+        offset = offset[0]
+        
         if r < 0:
             raise "identification error"
         if r == C.FP_VERIFY_NO_MATCH:

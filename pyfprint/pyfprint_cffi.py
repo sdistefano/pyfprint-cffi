@@ -35,6 +35,11 @@ size_t fp_print_data_get_data(struct fp_print_data *data, unsigned char **ret);
 struct fp_print_data *fp_print_data_from_data(unsigned char *buf, size_t buflen);
 void fp_dev_close(struct fp_dev *dev);
 void fp_exit(void);
+int fp_dev_supports_print_data(struct fp_dev *dev, struct fp_print_data *data);
+int fp_identify_finger_img(struct fp_dev *dev, struct fp_print_data **print_gallery, size_t *match_offset, struct fp_img **img);
+
+
+
 """)
 
 C = ffi.dlopen('fprint')
