@@ -284,13 +284,13 @@ class Device:
         r = C.fp_identify_finger_img(self.dev, print_gallery, offset, img)
         img = Image(img)
         offset = offset[0]
-        
+
         if r < 0:
             raise "identification error"
         if r == C.FP_VERIFY_NO_MATCH:
-            return (None, None, img)
+            return (None, None, img, r)
         if r == C.FP_VERIFY_MATCH:
-            return (offset, fprints[offset], img)
+            return (offset, fprints[offset], img, r)
         if r == C.FP_VERIFY_RETRY:
             pass
         if r == C.FP_VERIFY_RETRY_TOO_SHORT:
@@ -299,7 +299,8 @@ class Device:
             pass
         if r == C.FP_VERIFY_RETRY_REMOVE_FINGER:
             pass
-        return None
+
+        return (None, None, None, r)
 
     def load_print_from_disk(self, finger):
         """

@@ -17,8 +17,8 @@ for i in range(2):
 
 while True:
 	print("finger to verify, please")
-	i, fp, img = dev.identify_finger(fps)
-	print (i, fp, img)
+	i, fp, img, r = dev.identify_finger(fps)
+	print (i, fp, img, r)
 
 
 dev.close()
