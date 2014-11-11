@@ -16,7 +16,7 @@ for i in range(2):
 	fps.append(fp)
 
 while True:
-	print("finger to verify, please")
+	print("finger to identify, please")
 	i, fp, img, r = dev.identify_finger(fps)
 	print (i, fp, img, r)
 
