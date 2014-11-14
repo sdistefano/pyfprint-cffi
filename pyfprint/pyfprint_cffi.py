@@ -56,6 +56,8 @@ void fp_img_standardize(struct fp_img *img);
 struct fp_minutia **fp_img_get_minutiae(struct fp_img *img, int *nr_minutiae);
 int fp_img_save_to_file(struct fp_img *img, char *path);
 struct fp_img *fp_img_binarize(struct fp_img *img);
+int fp_img_compare_print_data_to_gallery(struct fp_print_data *print, struct fp_print_data **gallery, int match_threshold, size_t *match_offset);
+
 """)
 
 C = ffi.dlopen('fprint')

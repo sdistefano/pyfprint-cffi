@@ -10,6 +10,7 @@ __all__ = [
     "DiscoveredDevices",
     "Fprint",
     "Image",
+    "identify",
 ]
 
 from .pyfprint import *

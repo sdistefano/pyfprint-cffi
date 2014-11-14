@@ -590,4 +590,26 @@ def discover_devices():
 
     if not devs:
         raise "Device discovery failed"
+
     return DiscoveredDevices(devs)
+
+def identify(newfp, fprints):
+    """Identifies a fingerprint from a list of fingerprits"""
+
+    THRESHOLD = 40
+
+    fprint_gallery = ffi.new("struct fp_print_data * [%d]" % (len(fprints) + 1))
+
+    for i, fp in enumerate(fprints):
+        fprint_gallery[i] = fp._get_print_data_ptr()
+
+    offset = ffi.new("size_t *")
+
+    r = C.fp_img_compare_print_data_to_gallery(newfp._get_print_data_ptr(), fprint_gallery, THRESHOLD, offset);
+    offset = offset[0]
+
+    if r == C.FP_VERIFY_NO_MATCH:
+        return None
+
+    if r == C.FP_VERIFY_MATCH:
+        return offset
