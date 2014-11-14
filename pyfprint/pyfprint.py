@@ -331,20 +331,31 @@ class Device:
         if r != 0:
             raise "delete failed"
 
+class Minutia:
+    """A single point of interest in a fingerprint."""
+
+    def __init__(self, minutia_ptr, img):
+        # We need to keep a reference to the image,
+        # since the pointer we're referring to might
+        # be free'd otherwise
+        self.img = img
+        self.data = minutia_ptr[0]
+
+
 class Image:
 
     """An image returned from the fingerprint reader."""
 
     def __init__(self, img_ptr, bin=False):
         """Private method."""
-        self._img = img_ptr
+        self._img = img_ptr[0]
         self._bin = bin
         self._std = False
         self._minutiae = None
 
     def __del__(self):
         if self._img:
-            C.fp_img_free(self._img[0])
+            C.fp_img_free(self._img)
 
     def height(self):
         """The height of the image in pixels."""
@@ -368,7 +379,7 @@ class Image:
 
     def save_to_file(self, filename):
         """Save the image as a pgm file."""
-        r = C.fp_img_save_to_file(self._img, filename)
+        r = C.fp_img_save_to_file(self._img, filename.encode())
         if r != 0:
             raise "Save failed"
 
@@ -408,11 +419,13 @@ class Image:
             raise "Cannot find minutiae in binarized image"
         if not self._std:
             self.standardize()
-        (min_list, nr) = C.fp_img_get_minutiae(self._img)
+
+        nr = ffi.new("int *")
+        min_list = C.fp_img_get_minutiae(self._img, nr)
+        nr = nr[0]
         l = []
         for n in range(nr):
-            l.append(
-                Minutia(img=self, minutia_ptr=C.pyfp_deref_minutiae(min_list, n)))
+            l.append(Minutia(img=self, minutia_ptr=min_list[n]))
         self._minutiae = l
         return l
 

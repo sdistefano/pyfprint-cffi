@@ -14,5 +14,8 @@ setup(
     url="https://github.com/franciscod/pyfprint-cffi",
     license="GPL-2",
     packages=["pyfprint"],
-    install_requires=["cffi==0.8.6"],
+    install_requires=[
+        "cffi==0.8.6",
+        "Pillow",
+    ],
 )

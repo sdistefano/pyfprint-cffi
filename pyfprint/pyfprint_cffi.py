@@ -4,6 +4,21 @@ ffi = FFI()
 ffi.cdef("""
 struct fp_dscv_dev;
 
+struct fp_minutia {
+	int x;
+	int y;
+	int ex;
+	int ey;
+	int direction;
+	double reliability;
+	int type;
+	int appearing;
+	int feature_id;
+	int *nbrs;
+	int *ridge_counts;
+	int num_nbrs;
+};
+
 enum fp_enroll_result {
 	FP_ENROLL_COMPLETE = 1,
 	FP_ENROLL_FAIL,
@@ -37,8 +52,9 @@ void fp_dev_close(struct fp_dev *dev);
 void fp_exit(void);
 int fp_dev_supports_print_data(struct fp_dev *dev, struct fp_print_data *data);
 int fp_identify_finger_img(struct fp_dev *dev, struct fp_print_data **print_gallery, size_t *match_offset, struct fp_img **img);
-
-
+void fp_img_standardize(struct fp_img *img);
+struct fp_minutia **fp_img_get_minutiae(struct fp_img *img, int *nr_minutiae);
+int fp_img_save_to_file(struct fp_img *img, char *path);
 
 """)
 
