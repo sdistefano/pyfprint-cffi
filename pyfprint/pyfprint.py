@@ -165,7 +165,7 @@ class Device:
             unconditional = 0
 
         (r, img) = C.pyfp_dev_img_capture(self.dev, unconditional)
-        img = Image(img)
+        img = Image(img[0])
         if r != 0:
             raise "image_capture failed. error: %i" % r
         return img
@@ -193,7 +193,7 @@ class Device:
             if r < 0:
                 raise "Internal I/O error while enrolling: %i" % i
 
-            img = Image(img)
+            img = Image(img[0])
 
             if r == C.FP_ENROLL_COMPLETE:
                 _dbg("enroll complete")
@@ -234,7 +234,7 @@ class Device:
         while True:
             img = ffi.new("struct fp_img **")
             r = C.fp_verify_finger_img(self.dev, fprint._get_print_data_ptr(), img)
-            img = Image(img)
+            img = Image(img[0])
             if r < 0:
                 raise "verify error: %i" % r
             if r == C.FP_VERIFY_NO_MATCH:
@@ -284,7 +284,7 @@ class Device:
         offset = ffi.new("size_t *")
         img = ffi.new("struct fp_img **")
         r = C.fp_identify_finger_img(self.dev, print_gallery, offset, img)
-        img = Image(img)
+        img = Image(img[0])
         offset = offset[0]
 
         if r < 0:
@@ -348,7 +348,7 @@ class Image:
 
     def __init__(self, img_ptr, bin=False):
         """Private method."""
-        self._img = img_ptr[0]
+        self._img = img_ptr
         self._bin = bin
         self._std = False
         self._minutiae = None
@@ -385,7 +385,11 @@ class Image:
 
     def standardize(self):
         """Normalize orientation and colors of the image."""
+        if self._std:
+            return
+
         C.fp_img_standardize(self._img)
+
         self._std = True
 
     def binarize(self):
@@ -398,14 +402,17 @@ class Image:
         """
         if self._bin:
             return
-        if not self._std:
-            self.standardize()
-        i = C.fp_img_binarize(self._img)
-        if i == None:
-            raise "Binarize failed"
-        i = Image(img_ptr=i, bin=True)
+
+        self.standardize()
+
+        bimg = C.fp_img_binarize(self._img)
+
+        i = Image(img_ptr=bimg, bin=True)
+
         i._minutiae = self._minutiae
+
         return i
+
 
     def minutiae(self):
         """

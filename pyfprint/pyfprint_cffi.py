@@ -55,7 +55,7 @@ int fp_identify_finger_img(struct fp_dev *dev, struct fp_print_data **print_gall
 void fp_img_standardize(struct fp_img *img);
 struct fp_minutia **fp_img_get_minutiae(struct fp_img *img, int *nr_minutiae);
 int fp_img_save_to_file(struct fp_img *img, char *path);
-
+struct fp_img *fp_img_binarize(struct fp_img *img);
 """)
 
 C = ffi.dlopen('fprint')
