@@ -191,7 +191,7 @@ class Device:
             r = C.fp_enroll_finger_img(self.dev, fprint, img)
 
             if r < 0:
-                raise "Internal I/O error while enrolling: %i" % i
+                raise "Internal I/O error while enrolling: %i" % r
 
             img = Image(img[0])
 
