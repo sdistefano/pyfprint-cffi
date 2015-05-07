@@ -75,6 +75,9 @@ int fp_print_data_from_dscv_print(struct fp_dscv_print *print, struct fp_print_d
 uint32_t fp_print_data_get_devtype(struct fp_print_data *data);
 uint16_t fp_print_data_get_driver_id(struct fp_print_data *data);
 int fp_print_data_load(struct fp_dev *dev, enum fp_finger finger, struct fp_print_data **data);
+size_t fp_print_data_get_data(struct fp_print_data *data, unsigned char **ret);
+struct fp_print_data *fp_print_data_from_data(unsigned char *buf, size_t buflen);
+void fp_print_data_free(struct fp_print_data *data);
 
 void fp_img_standardize(struct fp_img *img);
 struct fp_minutia **fp_img_get_minutiae(struct fp_img *img, int *nr_minutiae);
