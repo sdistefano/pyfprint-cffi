@@ -210,7 +210,7 @@ class Device:
             _dbg("enroll " + messages[r])
 
             # Workaround my uru4000 hangs after fp_enroll_finger_img returns RETRY
-            if r>=C.FP_ENROLL_RETRY_TOO_SHORT and reopen_on_retry:
+            if r>=C.FP_ENROLL_RETRY and reopen_on_retry:
                 self.close()
                 self.open()
 
