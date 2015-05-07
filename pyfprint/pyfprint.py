@@ -33,6 +33,10 @@ from .pyfprint_cffi import C, ffi
 
 _init_ok = False
 
+class FprintException(Exception):
+    pass
+class FprintIOException(FprintException, IOError):
+    pass
 
 def _dbg(*arg):
     # print ("pyfprint-cffi: " + str(arg))
@@ -43,7 +47,7 @@ def fp_init():
     """Call this before doing anything else."""
     _init_ok = (C.fp_init() == 0)
     if not _init_ok:
-        raise "fprint initialization failed."
+        raise FprintException("fprint initialization failed.")
 
 
 def fp_exit():
@@ -63,7 +67,7 @@ class Device:
         self.dscv = dscv_ptr
         self.DscvList = DscvList
         if dscv_ptr and DscvList == None:
-            raise "Programming error? Device contructed with dscv without DscvList."
+            raise FprintException("Programming error? Device contructed with dscv without DscvList.")
 
     def close(self):
         """Closes the device. No more methods, except open(), may be called after this."""
@@ -74,10 +78,10 @@ class Device:
     def open(self):
         """Connects to the device."""
         if self.dev:
-            raise "Device already open"
+            raise FprintIOException("Device already open")
         self.dev = C.fp_dev_open(self.dscv)
         if not self.dev:
-            raise "device open failed"
+            raise FprintIOException("Device open failed")
 
     def driver(self):
         """
@@ -108,7 +112,7 @@ class Device:
         """
         if self.dev:
             return C.fp_dev_get_nr_enroll_stages(self.dev)
-        raise "Device not open"
+        raise FprintIOError("device not open")
 
     def is_compatible(self, fprint):
         """
@@ -121,32 +125,32 @@ class Device:
                 return C.fp_dev_supports_print_data(self.dev, fprint.data_ptr) == 1
             if fprint.dscv_ptr:
                 return C.fp_dev_supports_dscv_print(self.dev, fprint.dscv_ptr) == 1
-            raise "No print found"
+            raise FprintException("No fingerprint found")
         if self.dscv:
             if fprint.data_ptr:
                 return C.fp_dscv_dev_supports_print_data(self.dscv, fprint.data_ptr) == 1
             if fprint.dscv_ptr:
                 return C.fp_dscv_dev_supports_dscv_print(self.dscv, fprint.dscv_ptr) == 1
-            raise "No print found"
-        raise "No device found"
+            raise FprintException("No fingerprint found")
+        raise FprintIOException("No device found")
 
     def supports_imaging(self):
         """If true, the device can return an image of the finger."""
         if self.dev:
             return C.fp_dev_supports_imaging(self.dev) == 1
-        raise "Device not open"
+        raise FprintIOException("Device not open")
 
     def img_width(self):
         """Return the width of the images scanned by the device, in pixels."""
         if self.dev:
             return C.fp_dev_get_img_width(self.dev)
-        raise "Device not open"
+        raise FprintIOException("Device not open")
 
     def img_height(self):
         """Return the height of the images scanned by the device, in pixels."""
         if self.dev:
             return C.fp_dev_get_img_height(self.dev)
-        raise "Device not open"
+        raise FprintIOException("Device not open")
 
     def capture_image(self, wait_for_finger):
         """
@@ -155,7 +159,7 @@ class Device:
         on the sensor before image capture.
         """
         if not self.dev:
-            raise "Device not open"
+            raise FprintIOException("Device not open")
 
         if not self.supports_imaging():
             return None
@@ -167,7 +171,7 @@ class Device:
         (r, img) = C.pyfp_dev_img_capture(self.dev, unconditional)
         img = Image(img[0])
         if r != 0:
-            raise "image_capture failed. error: %i" % r
+            raise FprintException("image_capture failed. error: %i" % r)
         return img
 
     def enroll_finger(self):
@@ -181,7 +185,7 @@ class Device:
             the enrolled image
         """
         if not self.dev:
-            raise "Device not open"
+            raise FprintIOException("Device not open")
 
         while True:
             _dbg("enrolling finger...")
@@ -191,7 +195,7 @@ class Device:
             r = C.fp_enroll_finger_img(self.dev, fprint, img)
 
             if r < 0:
-                raise "Internal I/O error while enrolling: %i" % r
+                raise FprintException("Internal I/O error while enrolling: %i" % r)
 
             img = Image(img[0])
 
@@ -230,13 +234,13 @@ class Device:
             true if the finger and the Fprint match
         """
         if not self.dev:
-            raise "Device not open"
+            raise FprintIOException("Device not open")
         while True:
             img = ffi.new("struct fp_img **")
             r = C.fp_verify_finger_img(self.dev, fprint._get_print_data_ptr(), img)
             img = Image(img[0])
             if r < 0:
-                raise "verify error: %i" % r
+                raise FprintException("verify error: %i" % r)
             if r == C.FP_VERIFY_NO_MATCH:
                 return False, img
             if r == C.FP_VERIFY_MATCH:
@@ -254,7 +258,7 @@ class Device:
     def supports_identification(self):
         """Return True if the device supports the identify_finger method."""
         if not self.dev:
-            raise "Device not open"
+            raise FprintIOException("Device not open")
         return C.fp_dev_supports_identification(self.dev) == 1
 
     def identify_finger(self, fprints):
@@ -270,11 +274,11 @@ class Device:
         """
 
         if not self.dev:
-            raise "Device not open"
+            raise FprintIOException("Device not open")
 
         for x in fprints:
             if not self.is_compatible(x):
-                raise "can't verify uncompatible print"
+                raise FprintException("Can't verify uncompatible print")
 
         print_gallery = ffi.new("struct fp_print_data * [%d]" % (len(fprints)+1))
 
@@ -288,7 +292,7 @@ class Device:
         offset = offset[0]
 
         if r < 0:
-            raise "identification error"
+            raise FprintException("Identification error")
         if r == C.FP_VERIFY_NO_MATCH:
             return (None, None, img, r)
         if r == C.FP_VERIFY_MATCH:
@@ -313,10 +317,10 @@ class Device:
         Return a Fprint.
         """
         if not self.dev:
-            raise "Device not open"
+            raise FprintIOException("Device not open")
         (r, print_ptr) = C.fp_print_data_load(self.dev, finger)
         if r != 0:
-            raise "could not load print from disk"
+            raise FprintIOException("Could not load print from disk")
         return Fprint(data_ptr=print_ptr)
 
     def delete_stored_finger(self, finger):
@@ -326,10 +330,10 @@ class Device:
         - finger should be a value from Fingers.
         """
         if not self.dev:
-            raise "Device not open"
+            raise FprintIOException("Device not open")
         r = C.fp_print_data_delete(self.dev, finger)
         if r != 0:
-            raise "delete failed"
+            raise FprintException("Delete failed")
 
 class Minutia:
     """A single point of interest in a fingerprint."""
@@ -381,7 +385,7 @@ class Image:
         """Save the image as a pgm file."""
         r = C.fp_img_save_to_file(self._img, filename.encode())
         if r != 0:
-            raise "Save failed"
+            raise FprintException("Save failed")
 
     def standardize(self):
         """Normalize orientation and colors of the image."""
@@ -423,7 +427,7 @@ class Image:
         if self._minutiae:
             return self._minutiae
         if self._bin:
-            raise "Cannot find minutiae in binarized image"
+            raise FprintException("Cannot find minutiae in binarized image")
         if not self._std:
             self.standardize()
 
@@ -489,7 +493,7 @@ class Fprint:
             return
 
         if dscv_ptr != None and DscvList == None:
-            raise "Programming error: Fprint constructed with dscv_prt with DscvList == None"
+            raise FprintException("Programming error: Fprint constructed with dscv_prt with DscvList == None")
 
     # def __del__(self):
     #     if self.data_ptr:
@@ -508,7 +512,7 @@ class Fprint:
             return C.fp_print_data_get_driver_id(self.data_ptr)
         elif self.dscv_ptr:
             return C.fp_dscv_print_get_driver_id(self.dscv_ptr)
-        raise "no print"
+        raise FprintException("No fingerprint")
 
     def devtype(self):
         """Return an integer representing the type of device used to scan this print."""
@@ -516,16 +520,16 @@ class Fprint:
             return C.fp_print_data_get_devtype(self.data_ptr)
         elif self.dscv_ptr:
             return C.fp_dscv_print_get_devtype(self.dscv_ptr)
-        raise "no print"
+        raise FprintException("No fingerprint")
 
     def _data_from_dscv(self):
         if self.data_ptr:
             return
         if not self.dscv_ptr:
-            raise "no print"
+            raise FprintException("No fingerprint")
         (r, ptr) = C.fp_print_data_from_dscv_print(self.dscv_ptr)
         if r != 0:
-            raise "print data from dscv failed"
+            raise FprintException("print data from dscv failed")
         self.data_ptr = ptr
 
     def data(self):
@@ -535,13 +539,13 @@ class Fprint:
         contructor of Fprint.
         """
         if not self.data_ptr:
-            raise "no print"
+            raise FprintException("No fingerprint")
 
         s = ffi.new("unsigned char **")
         l = C.fp_print_data_get_data(self.data_ptr, s)
 
         if not l:
-            raise "serialization failed"
+            raise FprintException("Serialization failed")
 
         sd = s[0]
         b = ffi.buffer(sd, l)
@@ -589,12 +593,12 @@ def discover_devices():
     devs = C.fp_discover_devs()
 
     if not devs:
-        raise "Device discovery failed"
+        raise FprintIOException("Device discovery failed")
 
     return DiscoveredDevices(devs)
 
 def identify(newfp, fprints):
-    """Identifies a fingerprint from a list of fingerprits"""
+    """Identifies a fingerprint from a list of fingerprints"""
 
     THRESHOLD = 40
 
