@@ -170,7 +170,7 @@ class Device:
             raise "image_capture failed. error: %i" % r
         return img
 
-    def enroll_finger(self):
+    def enroll_finger(self, reopen_on_retry=False):
         """Enroll a finger
 
         Returns
@@ -209,9 +209,10 @@ class Device:
             }
             _dbg("enroll " + messages[r])
 
-            # Workaround my uru4000 hangs after fp_eenroll_finger_img returns RETRY
-            self.close()
-            self.open()
+            # Workaround my uru4000 hangs after fp_enroll_finger_img returns RETRY
+            if r>=C.FP_ENROLL_RETRY_TOO_SHORT and reopen_on_retry:
+                self.close()
+                self.open()
 
         return None, img
 
