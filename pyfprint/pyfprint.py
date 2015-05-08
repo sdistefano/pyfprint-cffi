@@ -285,8 +285,8 @@ class Device:
 
         Match the finger on the reader against a list of Fprints.
 
-        Return a tuple: (list_offset, Fprint, Image) if a match is found,
-        (None, None, Image) otherwise.
+        Return a tuple: (list_offset, Fprint, Image, state) if a match is found,
+        (None, None, Image, state) otherwise.
 
         Image is None if the device doesn't support imaging.
         """
