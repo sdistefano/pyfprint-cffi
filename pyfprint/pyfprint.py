@@ -103,7 +103,7 @@ class Device:
         if self.dev:
             return C.fp_dev_get_devtype(self.dev)
         if self.dscv:
-            return C.fp_dscv_dev_get_devtype(self.dev)
+            return C.fp_dscv_dev_get_devtype(self.dscv)
 
     def nr_enroll_stages(self):
         """
