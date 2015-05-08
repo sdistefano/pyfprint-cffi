@@ -69,6 +69,8 @@ def fp_exit():
     C.fp_exit()
     _init_ok = False
 
+def debug(level):
+    C.fp_set_debug(level)
 
 class Device:
 
@@ -569,6 +571,16 @@ class Fprint:
         sd = s[0]
         b = ffi.buffer(sd, l)
         return b
+    def save(self, finger):
+        """
+        Save a fingerprint to the users home directory.
+
+        - finger should be a value from Fingers.
+
+        Return a True on SUCCESS, False otherwise
+        """
+        data=self._get_print_data_ptr()
+        return 0 == C.fp_print_data_save(data, finger)
 
 
 class DiscoveredDevices(list):
