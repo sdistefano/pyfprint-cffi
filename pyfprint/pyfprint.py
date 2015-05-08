@@ -336,10 +336,11 @@ class Device:
         """
         if not self.dev:
             raise FprintIOException("Device not open")
-        (r, print_ptr) = C.fp_print_data_load(self.dev, finger)
+        print_ptr= ffi.new("struct fp_print_data **")
+        r = C.fp_print_data_load(self.dev, finger, print_ptr)
         if r != 0:
             raise FprintIOException("Could not load print from disk")
-        return Fprint(data_ptr=print_ptr)
+        return Fprint(data_ptr=print_ptr[0])
 
     def delete_stored_finger(self, finger):
         """
