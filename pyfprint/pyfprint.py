@@ -128,7 +128,7 @@ class Device:
         """
         if self.dev:
             return C.fp_dev_get_nr_enroll_stages(self.dev)
-        raise FprintIOError("device not open")
+        raise FprintIOException("Device not open")
 
     def is_compatible(self, fprint):
         """
