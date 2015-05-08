@@ -614,7 +614,10 @@ def identify(newfp, fprints):
 
     offset = ffi.new("size_t *")
 
-    r = C.fp_img_compare_print_data_to_gallery(newfp._get_print_data_ptr(), fprint_gallery, THRESHOLD, offset);
+    try:
+        r = C.fp_img_compare_print_data_to_gallery(newfp._get_print_data_ptr(), fprint_gallery, THRESHOLD, offset);
+    except AttributeError:
+        raise FprintException("libfprint does not export fp_img_compare_print_data_to_gallery!")
     offset = offset[0]
 
     if r == C.FP_VERIFY_NO_MATCH:
