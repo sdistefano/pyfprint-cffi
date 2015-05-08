@@ -168,7 +168,8 @@ class Device:
         if wait_for_finger == True:
             unconditional = 0
 
-        (r, img) = C.pyfp_dev_img_capture(self.dev, unconditional)
+        img = ffi.new("struct fp_img **")
+        r = C.fp_dev_img_capture(self.dev, unconditional, img)
         img = Image(img[0])
         if r != 0:
             raise FprintException("image_capture failed. error: %i" % r)
@@ -374,7 +375,8 @@ class Image:
         """
         Return a string containing one byte per pixel, representing a grayscale image.
         """
-        return C.pyfp_img_get_data(self._img)
+        data=C.fp_img_get_data(self._img)
+        return ffi.string(data)[:-1] if data else ""
 
     def rgb_data(self):
         """
@@ -456,11 +458,13 @@ class Driver:
 
     def name(self):
         """Return the driver name."""
-        return C.fp_driver_get_name(self.drv)
+        data=C.fp_driver_get_name(self.drv)
+        return ffi.string(data).decode() if data else ""
 
     def full_name(self):
         """A longer, more desciptive version of the driver name."""
-        return C.fp_driver_get_full_name(self.drv)
+        data=C.fp_driver_get_full_name(self.drv)
+        return ffi.string(data).decode() if data else ""
 
     def driver_id(self):
         """Return an integer uniqly identifying the driver."""
