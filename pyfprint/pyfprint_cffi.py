@@ -49,12 +49,12 @@ int fp_dscv_dev_supports_print_data(struct fp_dscv_dev *dev, struct fp_print_dat
 uint32_t fp_dscv_print_get_devtype(struct fp_dscv_print *print);
 uint16_t fp_dscv_print_get_driver_id(struct fp_dscv_print *print);
 
-
 struct fp_dev *fp_dev_open(struct fp_dscv_dev *ddev);
 void fp_dev_close(struct fp_dev *dev);
 int fp_dev_supports_print_data(struct fp_dev *dev, struct fp_print_data *data);
 uint32_t fp_dev_get_devtype(struct fp_dev *dev);
 struct fp_driver *fp_dev_get_driver(struct fp_dev *dev);
+int fp_dev_img_capture(struct fp_dev *dev, int unconditional,struct fp_img **image);
 int fp_dev_get_img_height(struct fp_dev *dev);
 int fp_dev_get_img_width(struct fp_dev *dev);
 int fp_dev_get_nr_enroll_stages(struct fp_dev *dev);
@@ -86,6 +86,7 @@ struct fp_img *fp_img_binarize(struct fp_img *img);
 int fp_img_compare_print_data_to_gallery(struct fp_print_data *print, struct fp_print_data **gallery, int match_threshold, size_t *match_offset);
 int fp_img_get_height(struct fp_img *img);
 int fp_img_get_width(struct fp_img *img);
+unsigned char *fp_img_get_data(struct fp_img *img);
 void fp_img_free(struct fp_img *img);
 
 """)
