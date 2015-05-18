@@ -2,8 +2,8 @@
 """CFFI bindings for libfprint"""
 
 __all__ = [
-    "fp_init",
-    "fp_exit",
+    "init",
+    "exit",
     "Driver",
     "Device",
     "discover_devices",
