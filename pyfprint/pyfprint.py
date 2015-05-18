@@ -516,18 +516,12 @@ class Fprint:
             l = len(data_bytes)
             s = ffi.new("char[%d]" % l, bytes(data_bytes))
 
-            self.data_ptr = C.fp_print_data_from_data(s, l)
+            ptr = C.fp_print_data_from_data(s, l)
+            self.data_ptr = ffi.gc(ptr, C.fp_print_data_free)
             return
 
         if dscv_ptr != None and DscvList == None:
             raise FprintException("Programming error: Fprint constructed with dscv_prt with DscvList == None")
-
-    # def __del__(self):
-    #     if self.data_ptr:
-    #         C.fp_print_data_free(ffi.cast("struct fp_print_data *", self.data_ptr))
-    #     # The dscv_ptr is freed when all the dscv prints have been garbage
-        # collected
-
     def _get_print_data_ptr(self):
         if not self.data_ptr:
             self._data_from_dscv()
