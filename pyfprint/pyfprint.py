@@ -614,8 +614,7 @@ class DiscoveredDevices(list):
 
 def discover_devices():
     """Return a list of available devices."""
-    if not _init_ok:
-        fp_init()
+    init()
 
     devs = C.fp_discover_devs()
 
