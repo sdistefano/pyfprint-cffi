@@ -57,15 +57,27 @@ def _dbg(*arg):
     pass
 
 
-def fp_init():
+def init():
     """Call this before doing anything else."""
+    global _init_ok
+    if _init_ok: return
+    fp_init()
+def fp_init():
+    """Deprecated, use init() instead"""
+    global _init_ok
     _init_ok = (C.fp_init() == 0)
     if not _init_ok:
         raise FprintException("fprint initialization failed.")
 
 
-def fp_exit():
+def exit():
     """pyfprint can't be used after this is called."""
+    global _init_ok
+    if _init_ok:
+        fp_exit()
+def fp_exit():
+    """Deprecated, use exit() instead"""
+    global _init_ok
     C.fp_exit()
     _init_ok = False
 
