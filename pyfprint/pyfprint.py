@@ -384,13 +384,10 @@ class Image:
     def __init__(self, img_ptr, bin=False):
         """Private method."""
         self._img = img_ptr
+        self._img = ffi.gc(img_ptr, C.fp_img_free)
         self._bin = bin
         self._std = False
         self._minutiae = None
-
-    def __del__(self):
-        if self._img:
-            C.fp_img_free(self._img)
 
     def height(self):
         """The height of the image in pixels."""
@@ -598,7 +595,7 @@ class DiscoveredDevices(list):
 
     def __init__(self, dscv_devs_list):
 
-        self.swig_list_ptr = dscv_devs_list
+        self.swig_list_ptr = ffi.gc(dscv_devs_list, C.fp_dscv_devs_free)
 
         i = 0
 
@@ -610,10 +607,6 @@ class DiscoveredDevices(list):
 
             self.append(Device(dscv_ptr=x, DscvList=self))
             i += 1
-
-    def __del__(self):
-        C.fp_dscv_devs_free(self.swig_list_ptr)
-
     def find_compatible(self, fprint):
         """
         Return a Device that is compatible with the fprint,
