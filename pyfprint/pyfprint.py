@@ -481,10 +481,6 @@ class Driver:
         """Private."""
         self.drv = swig_drv_ptr
 
-    def __del__(self):
-        # FIXME: free drv?
-        pass
-
     def name(self):
         """Return the driver name."""
         data=C.fp_driver_get_name(self.drv)
