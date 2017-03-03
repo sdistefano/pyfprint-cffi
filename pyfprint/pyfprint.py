@@ -203,6 +203,26 @@ class Device:
             raise FprintException("image_capture failed. error: %i" % r)
         return img
 
+    def enroll_finger_nolock(self):
+        if not self.dev:
+            raise FprintIOException("Device not open")
+
+        fprint = ffi.new("struct fp_print_data **")
+        img = ffi.new("struct fp_img **")
+
+        r = C.fp_enroll_finger_img(self.dev, fprint, img)
+
+        if r < 0:
+            raise FprintException("Internal I/O error while enrolling: %i" % r)
+
+        img = Image(img[0])
+
+        if r == C.FP_ENROLL_COMPLETE:
+            _dbg("enroll complete")
+            return Fprint(data_ptr=fprint[0]), img
+
+        return (None, r)
+
     def enroll_finger(self, reopen_on_retry=False):
         """Enroll a finger
 
